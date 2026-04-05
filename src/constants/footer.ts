@@ -1,5 +1,8 @@
 import type { FooterColumn, SocialLink } from '@/types'
 
+/** Titre de la colonne réseaux (footer desktop), aligné sur les autres sections */
+export const FOOTER_SOCIAL_COLUMN_TITLE = 'Réseaux'
+
 export const FOOTER_SOCIALS: SocialLink[] = [
   { id: 'github', href: 'https://github.com/Wiizlax', ariaLabel: "Tom Simonis sur GitHub" },
   {

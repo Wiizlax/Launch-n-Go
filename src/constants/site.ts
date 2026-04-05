@@ -21,5 +21,5 @@ export const SITE_CONFIG = {
   addressLabel: 'Adresse',
   email: 'tomsimonis71@gmail.com',
   phone: '+33 1 23 45 67 89',
-  address: 'Paris, France',
+  address: 'Bruxelles, Belgique',
 } as const

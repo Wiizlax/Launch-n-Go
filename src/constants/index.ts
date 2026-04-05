@@ -5,7 +5,12 @@ export { PROJECTS } from './projects'
 export { PROCESS_STEPS } from './process'
 export { TESTIMONIALS } from './testimonials'
 export { STATS } from './stats'
-export { FOOTER_SOCIALS, FOOTER_COLUMNS, FOOTER_LEGAL } from './footer'
+export {
+  FOOTER_SOCIALS,
+  FOOTER_SOCIAL_COLUMN_TITLE,
+  FOOTER_COLUMNS,
+  FOOTER_LEGAL,
+} from './footer'
 export { SECTION_COPY } from './sections'
 export { CONTACT_FORM, CONTACT_TOAST_SUCCESS_MS } from './contact'
 export { FADE_UP, STAGGER_CONTAINER, TRANSITION_EASE } from './animations'

@@ -16,17 +16,17 @@ Ce dépôt est destiné à être **lu par n’importe qui** : étudiants, recrut
 
 ## Stack technique
 
-| Domaine        | Choix |
-|----------------|--------|
-| Langage        | TypeScript (mode strict) |
-| UI             | React 18 |
-| Build / dev    | Vite 6 |
-| Styles         | Tailwind CSS 3 |
-| Animations     | Framer Motion |
-| Icônes         | Lucide React |
-| Formulaires    | React Hook Form + Zod |
-| API contact    | Node.js, Express, CORS, `dotenv` |
-| E-mail         | SDK Resend |
+| Domaine     | Choix                            |
+| ----------- | -------------------------------- |
+| Langage     | TypeScript (mode strict)         |
+| UI          | React 18                         |
+| Build / dev | Vite 6                           |
+| Styles      | Tailwind CSS 3                   |
+| Animations  | Framer Motion                    |
+| Icônes      | Lucide React                     |
+| Formulaires | React Hook Form + Zod            |
+| API contact | Node.js, Express, CORS, `dotenv` |
+| E-mail      | SDK Resend                       |
 
 ## Prérequis
 
@@ -48,15 +48,15 @@ Copier `.env.example` vers `.env` et renseigner au minimum :
 
 ## Scripts npm
 
-| Commande        | Rôle |
-|-----------------|------|
-| `npm run dev`   | Lance **Vite** (front) et **l’API contact** en parallèle (recommandé en local). |
-| `npm run dev:vite` | Front seul (sans envoi de mail si l’API n’est pas joignable). |
-| `npm run dev:api`  | API contact seule (rechargement avec `tsx watch`). |
-| `npm run start:api` | Démarre l’API une fois (sans watch). |
-| `npm run build` | Vérification TypeScript + build de production du front (`dist/`). |
-| `npm run preview` | Prévisualise le build statique (sans l’API par défaut). |
-| `npm run lint`  | ESLint sur le projet. |
+| Commande            | Rôle                                                                            |
+| ------------------- | ------------------------------------------------------------------------------- |
+| `npm run dev`       | Lance **Vite** (front) et **l’API contact** en parallèle (recommandé en local). |
+| `npm run dev:vite`  | Front seul (sans envoi de mail si l’API n’est pas joignable).                   |
+| `npm run dev:api`   | API contact seule (rechargement avec `tsx watch`).                              |
+| `npm run start:api` | Démarre l’API une fois (sans watch).                                            |
+| `npm run build`     | Vérification TypeScript + build de production du front (`dist/`).               |
+| `npm run preview`   | Prévisualise le build statique (sans l’API par défaut).                         |
+| `npm run lint`      | ESLint sur le projet.                                                           |
 
 En développement, Vite **proxy** les requêtes `/api` vers l’API (port `3001` par défaut), ce qui permet au formulaire d’appeler `POST /api/contact` sans configuration CORS supplémentaire.
 

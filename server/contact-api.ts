@@ -33,6 +33,18 @@ function getOrigins(): string[] {
   return defaultOrigins
 }
 
+/** Préviews / déploiements Vercel : URL différente à chaque build si ce n’est pas le domaine de prod. */
+function isVercelAppOrigin(origin: string): boolean {
+  try {
+    const u = new URL(origin)
+    return u.protocol === 'https:' && u.hostname.endsWith('.vercel.app')
+  } catch {
+    return false
+  }
+}
+
+const allowAllVercelPreviews = process.env.ALLOW_VERCEL_PREVIEWS === 'true'
+
 const app = express()
 app.use(express.json({ limit: '100kb' }))
 
@@ -41,7 +53,15 @@ app.use(
     origin: (origin, callback) => {
       const allowed = getOrigins()
       const reqOrigin = origin ? normalizeOrigin(origin) : null
-      if (!reqOrigin || allowed.includes(reqOrigin)) {
+      if (!reqOrigin) {
+        callback(null, true)
+        return
+      }
+      if (allowed.includes(reqOrigin)) {
+        callback(null, true)
+        return
+      }
+      if (allowAllVercelPreviews && isVercelAppOrigin(reqOrigin)) {
         callback(null, true)
         return
       }
