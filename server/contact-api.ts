@@ -11,7 +11,8 @@ const contactBodySchema = z.object({
   message: z.string().min(20),
 })
 
-const PORT = Number(process.env.CONTACT_API_PORT) || 3001
+const PORT =
+  Number(process.env.PORT) || Number(process.env.CONTACT_API_PORT) || 3001
 
 const defaultOrigins = [
   'http://localhost:5173',
@@ -20,10 +21,14 @@ const defaultOrigins = [
   'http://127.0.0.1:4173',
 ]
 
+function normalizeOrigin(url: string): string {
+  return url.trim().replace(/\/$/, '')
+}
+
 function getOrigins(): string[] {
   const raw = process.env.ALLOWED_ORIGIN
   if (raw?.trim()) {
-    return raw.split(',').map((s) => s.trim())
+    return raw.split(',').map((s) => normalizeOrigin(s))
   }
   return defaultOrigins
 }
@@ -35,11 +40,13 @@ app.use(
   cors({
     origin: (origin, callback) => {
       const allowed = getOrigins()
-      if (!origin || allowed.includes(origin)) {
+      const reqOrigin = origin ? normalizeOrigin(origin) : null
+      if (!reqOrigin || allowed.includes(reqOrigin)) {
         callback(null, true)
         return
       }
-      callback(new Error('Not allowed by CORS'))
+      // Ne pas passer une Error : Express renverrait 500 sur le preflight OPTIONS.
+      callback(null, false)
     },
     methods: ['POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
@@ -102,6 +109,9 @@ app.post('/api/contact', async (req, res) => {
   }
 })
 
-app.listen(PORT, () => {
-  console.log(`Contact API listening on http://127.0.0.1:${PORT}`)
+/** Render / Heroku fournissent PORT : il faut écouter sur toutes les interfaces. */
+const listenHost = process.env.PORT ? '0.0.0.0' : '127.0.0.1'
+
+app.listen(PORT, listenHost, () => {
+  console.log(`Contact API listening on http://${listenHost}:${PORT}`)
 })
