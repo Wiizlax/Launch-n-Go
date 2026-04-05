@@ -1,0 +1,58 @@
+import type { Project } from '@/types'
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'ecommerce-platform',
+    categoryLabel: 'E-commerce',
+    title: 'Plateforme E-commerce',
+    description: 'Site de vente en ligne avec paiement sécurisé et gestion des stocks.',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=450&fit=crop',
+    imageAlt: 'Interface e-commerce avec panier sur un écran',
+    tags: ['React', 'Node.js', 'Stripe'],
+  },
+  {
+    id: 'saas-app',
+    categoryLabel: 'SaaS',
+    title: 'Application SaaS',
+    description: 'Dashboard de gestion de projets avec analytics en temps réel.',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop',
+    imageAlt: 'Tableau de bord analytique sur ordinateur portable',
+    tags: ['Next.js', 'TypeScript', 'PostgreSQL'],
+  },
+  {
+    id: 'landing-premium',
+    categoryLabel: 'Web Design',
+    title: 'Site Vitrine Premium',
+    description: 'Landing page moderne pour une startup tech',
+    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=450&fit=crop',
+    imageAlt: 'Bureau avec écran affichant du code',
+    tags: ['React', 'Tailwind', 'Motion'],
+  },
+  {
+    id: 'fitness-app',
+    categoryLabel: 'Mobile',
+    title: 'App Mobile Fitness',
+    description: "Application de suivi d'entraînement et nutrition",
+    image: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=450&fit=crop',
+    imageAlt: 'Smartphone affichant une application fitness',
+    tags: ['React Native', 'Firebase'],
+  },
+  {
+    id: 'marketplace-b2b',
+    categoryLabel: 'Marketplace',
+    title: 'Marketplace B2B',
+    description: 'Plateforme de mise en relation entre professionnels',
+    image: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=450&fit=crop',
+    imageAlt: 'Réunion équipe autour de données projet',
+    tags: ['Vue.js', 'Laravel', 'AWS'],
+  },
+  {
+    id: 'crm-custom',
+    categoryLabel: 'Business',
+    title: 'CRM Custom',
+    description: 'Outil de gestion client sur mesure avec automatisations',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop',
+    imageAlt: 'Graphiques et métriques sur écran',
+    tags: ['Angular', 'Python', 'MongoDB'],
+  },
+]

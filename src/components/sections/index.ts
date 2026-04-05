@@ -1,0 +1,8 @@
+export { Header } from './Header'
+export { HeroSection } from './HeroSection'
+export { ServicesSection } from './ServicesSection'
+export { PortfolioSection } from './PortfolioSection'
+export { ProcessSection } from './ProcessSection'
+export { TestimonialsSection } from './TestimonialsSection'
+export { ContactSection } from './ContactSection'
+export { Footer } from './Footer'

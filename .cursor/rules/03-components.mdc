@@ -1,0 +1,227 @@
+---
+description: Architecture et conventions des composants React — atomiques UI, sections de landing page, DRY strict
+globs: **/*.tsx
+alwaysApply: true
+---
+
+# Composants React — Architecture & Conventions
+
+## Règle fondamentale : DRY
+
+- Un bloc JSX copié **2 fois** → créer un composant
+- Une logique copiée **2 fois** → créer un hook ou une util
+- Une chaîne de classes Tailwind répétée → créer un composant ou une variante
+
+---
+
+## Structure d'un fichier composant
+
+```tsx
+// 1. Imports (voir rules stack pour l'ordre)
+import { motion } from 'framer-motion'
+import { cn } from '@/utils/cn'
+
+// 2. Types/interfaces des props — TOUJOURS au-dessus du composant
+interface ServiceCardProps {
+  id: string
+  icon: string
+  title: string
+  description: string
+  className?: string
+}
+
+// 3. Composant — function declaration (pas arrow function pour les composants nommés)
+export function ServiceCard({ icon, title, description, className }: ServiceCardProps) {
+  return (
+    // JSX...
+  )
+}
+
+// 4. Pas de default export sauf pour les pages/layouts
+```
+
+---
+
+## Règles strictes
+
+| Règle | Détail |
+|---|---|
+| 1 composant = 1 fichier | Toujours |
+| Max ~120 lignes | Extraire en sous-composants si dépassé |
+| Pas de `any` dans les props | Voir rules TypeScript |
+| Pas de logique métier dans les sections | → déléguer aux hooks |
+| Pas d'effet de bord inline | Pas de `useEffect` pour ce qui peut être calculé autrement |
+| Composition > héritage | Toujours |
+
+---
+
+## Deux catégories de composants
+
+### `components/ui/` — Atomes réutilisables
+
+Composants **génériques**, sans connaissance du domaine métier.  
+Doivent être créés **en premier** avant toute section.
+
+```
+components/ui/
+├── Button.tsx          # variantes: primary | secondary | ghost, sizes: sm | md | lg
+├── Badge.tsx           # labels colorés (ex: "NEXT.JS", "REACT")
+├── Card.tsx            # wrapper générique shadow/border/radius
+├── SectionHeader.tsx   # tag + titre + sous-titre (commun à toutes les sections)
+├── Container.tsx       # max-width + padding horizontal responsive
+└── index.ts            # barrel export
+```
+
+### `components/sections/` — Sections de la landing
+
+Composants **spécifiques** à la page, composés à partir des atomes UI.
+
+```
+components/sections/
+├── HeroSection.tsx
+├── ServicesSection.tsx
+├── PortfolioSection.tsx
+├── ProcessSection.tsx
+├── TestimonialsSection.tsx
+├── ContactSection.tsx
+└── index.ts
+```
+
+---
+
+## Pattern d'une section
+
+```tsx
+// src/components/sections/ServicesSection.tsx
+import { SERVICES } from '@/constants'
+import { ServiceCard, SectionHeader, Container } from '@/components/ui'
+
+export function ServicesSection() {
+  return (
+    <section id="services" aria-label="Nos services" className="py-24 bg-surface">
+      <Container>
+        <SectionHeader
+          tag="Nos Services"
+          title="Des solutions complètes"
+          subtitle="Pour tous vos besoins digitaux"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+          {SERVICES.map((service) => (
+            <ServiceCard key={service.id} {...service} />
+          ))}
+        </div>
+      </Container>
+    </section>
+  )
+}
+```
+
+---
+
+## Pattern du composant `Button`
+
+```tsx
+// src/components/ui/Button.tsx
+import { cn } from '@/utils/cn'
+
+const variants = {
+  primary: 'bg-primary text-white hover:bg-primary-dark',
+  secondary: 'border-2 border-primary text-primary hover:bg-primary hover:text-white',
+  ghost: 'text-primary hover:underline',
+} as const
+
+const sizes = {
+  sm: 'px-4 py-2 text-sm',
+  md: 'px-6 py-3 text-base',
+  lg: 'px-8 py-4 text-lg',
+} as const
+
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: keyof typeof variants
+  size?: keyof typeof sizes
+  isLoading?: boolean
+  children: React.ReactNode
+}
+
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  isLoading = false,
+  className,
+  children,
+  disabled,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      className={cn(
+        'inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+        variants[variant],
+        sizes[size],
+        (disabled || isLoading) && 'cursor-not-allowed opacity-60',
+        className
+      )}
+      disabled={disabled || isLoading}
+      {...props}
+    >
+      {isLoading ? <span className="animate-spin mr-2">⟳</span> : null}
+      {children}
+    </button>
+  )
+}
+```
+
+---
+
+## Pattern du composant `SectionHeader`
+
+```tsx
+// src/components/ui/SectionHeader.tsx
+import { cn } from '@/utils/cn'
+
+interface SectionHeaderProps {
+  tag?: string          // label orange au-dessus — ex: "Nos Services"
+  title: string         // titre principal
+  subtitle?: string     // sous-titre optionnel
+  centered?: boolean    // alignement (défaut: centré)
+  className?: string
+}
+
+export function SectionHeader({
+  tag,
+  title,
+  subtitle,
+  centered = true,
+  className,
+}: SectionHeaderProps) {
+  return (
+    <div className={cn('max-w-2xl', centered && 'mx-auto text-center', className)}>
+      {tag && (
+        <span className="inline-block text-primary font-semibold text-sm uppercase tracking-widest mb-3">
+          {tag}
+        </span>
+      )}
+      <h2 className="font-heading text-3xl md:text-4xl font-bold text-dark leading-tight">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="mt-4 text-gray-500 text-lg leading-relaxed">{subtitle}</p>
+      )}
+    </div>
+  )
+}
+```
+
+---
+
+## Nommage
+
+| Élément | Convention | Exemple |
+|---|---|---|
+| Composant | PascalCase | `ServiceCard.tsx` |
+| Hook custom | camelCase préfixé `use` | `useScrollReveal.ts` |
+| Util | camelCase | `formatDate.ts` |
+| Constante | SCREAMING_SNAKE_CASE | `SERVICES`, `NAV_ITEMS` |
+| Type/Interface | PascalCase | `ServiceCardProps` |
+| Handler | `handle` + action | `handleSubmitForm` |

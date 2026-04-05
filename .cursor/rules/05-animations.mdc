@@ -1,0 +1,552 @@
+---
+description: Animations Framer Motion — variants réutilisables, scroll reveals, stagger, hover, page transitions. Règles de performance et d'accessibilité.
+globs: **/*.{ts,tsx}
+alwaysApply: true
+---
+
+# Animations — Framer Motion
+
+## Philosophie
+
+- **Purposeful** : chaque animation a une raison d'être (guider l'attention, donner du feedback, révéler du contenu)
+- **Performant** : toujours animer `transform` et `opacity` — jamais `width`, `height`, `top`, `left` directement
+- **Accessible** : respecter `prefers-reduced-motion` systématiquement
+- **DRY** : les variants sont définis dans `src/constants/animations.ts` et importés, jamais inline
+
+---
+
+## Installation
+
+```bash
+npm install framer-motion
+```
+
+---
+
+## `src/constants/animations.ts` — Bibliothèque de variants réutilisables
+
+```ts
+import type { Variants, Transition } from 'framer-motion'
+
+// ── Transitions de base ────────────────────────────────────────────────────────
+
+export const TRANSITION_SMOOTH: Transition = {
+  type: 'spring',
+  stiffness: 100,
+  damping: 20,
+  mass: 0.8,
+}
+
+export const TRANSITION_SNAPPY: Transition = {
+  type: 'spring',
+  stiffness: 300,
+  damping: 24,
+}
+
+export const TRANSITION_EASE: Transition = {
+  duration: 0.5,
+  ease: [0.25, 0.46, 0.45, 0.94], // ease-out-quart
+}
+
+export const TRANSITION_SLOW: Transition = {
+  duration: 0.8,
+  ease: [0.16, 1, 0.3, 1], // expo-out
+}
+
+// ── Variants d'apparition (scroll reveal) ─────────────────────────────────────
+
+/** Fade simple — pour les éléments discrets */
+export const FADE_IN: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: TRANSITION_EASE,
+  },
+}
+
+/** Slide depuis le bas — le plus courant pour les sections */
+export const FADE_UP: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: TRANSITION_EASE,
+  },
+}
+
+/** Slide depuis la gauche */
+export const FADE_LEFT: Variants = {
+  hidden: { opacity: 0, x: -40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: TRANSITION_EASE,
+  },
+}
+
+/** Slide depuis la droite */
+export const FADE_RIGHT: Variants = {
+  hidden: { opacity: 0, x: 40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: TRANSITION_EASE,
+  },
+}
+
+/** Scale + fade — pour les cards, badges, éléments focaux */
+export const SCALE_IN: Variants = {
+  hidden: { opacity: 0, scale: 0.88 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: TRANSITION_SMOOTH,
+  },
+}
+
+/** Scale depuis le bas avec légère perspective */
+export const SCALE_UP: Variants = {
+  hidden: { opacity: 0, scale: 0.92, y: 20 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: TRANSITION_SMOOTH,
+  },
+}
+
+// ── Variants de conteneur (stagger enfants) ────────────────────────────────────
+
+/**
+ * Stagger standard — les enfants apparaissent l'un après l'autre.
+ * Utiliser sur le wrapper, appliquer FADE_UP sur chaque enfant.
+ */
+export const STAGGER_CONTAINER: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+/** Stagger plus rapide — pour les petits éléments nombreux */
+export const STAGGER_FAST: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.06,
+      delayChildren: 0.05,
+    },
+  },
+}
+
+/** Stagger lent — pour les sections héro ou les grands blocs */
+export const STAGGER_SLOW: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.18,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+// ── Variants hover ─────────────────────────────────────────────────────────────
+
+export const HOVER_LIFT = {
+  rest: { y: 0, boxShadow: '0 4px 24px -4px rgba(0,0,0,0.08)' },
+  hover: {
+    y: -6,
+    boxShadow: '0 16px 48px -8px rgba(0,0,0,0.18)',
+    transition: TRANSITION_SNAPPY,
+  },
+}
+
+export const HOVER_SCALE = {
+  rest: { scale: 1 },
+  hover: { scale: 1.04, transition: TRANSITION_SNAPPY },
+}
+
+export const HOVER_GLOW = {
+  rest: { boxShadow: '0 0 0px rgba(255,107,53,0)' },
+  hover: {
+    boxShadow: '0 8px 32px -4px rgba(255,107,53,0.4)',
+    transition: { duration: 0.3 },
+  },
+}
+
+// ── Variants de texte (lettres / mots) ────────────────────────────────────────
+
+export const WORD_REVEAL: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.06 },
+  },
+}
+
+export const WORD_CHILD: Variants = {
+  hidden: { opacity: 0, y: 20, rotateX: -40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transition: TRANSITION_SMOOTH,
+  },
+}
+
+// ── Transitions de page ────────────────────────────────────────────────────────
+
+export const PAGE_TRANSITION: Variants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.25 } },
+}
+```
+
+---
+
+## Hook `useReducedMotion` — accessibilité obligatoire
+
+```ts
+// src/hooks/useReducedMotion.ts
+import { useReducedMotion as useFramerReducedMotion } from 'framer-motion'
+
+/**
+ * Retourne les variants appropriés selon la préférence système.
+ * Si l'utilisateur préfère les mouvements réduits, retourne des variants sans déplacement.
+ */
+export function useSafeMotion() {
+  const shouldReduce = useFramerReducedMotion()
+
+  const safeVariant = (variants: Record<string, object>) => {
+    if (!shouldReduce) return variants
+    // Retirer les propriétés de déplacement, garder uniquement opacity
+    return Object.fromEntries(
+      Object.entries(variants).map(([key, val]) => [
+        key,
+        { opacity: (val as Record<string, number>).opacity ?? 1 },
+      ])
+    )
+  }
+
+  return { shouldReduce, safeVariant }
+}
+```
+
+---
+
+## Hook `useScrollReveal` — scroll reveal générique
+
+```ts
+// src/hooks/useScrollReveal.ts
+import { useInView } from 'framer-motion'
+import { useRef } from 'react'
+
+interface ScrollRevealOptions {
+  threshold?: number    // 0 à 1, défaut: 0.15
+  once?: boolean        // ne déclencher qu'une fois, défaut: true
+  rootMargin?: string   // ex: "-50px"
+}
+
+/**
+ * Retourne une ref et un booléen isInView.
+ * Utiliser avec whileInView sur les motion.* elements en général,
+ * mais ce hook est utile pour des logiques conditionnelles plus complexes.
+ */
+export function useScrollReveal({
+  threshold = 0.15,
+  once = true,
+  rootMargin = '0px',
+}: ScrollRevealOptions = {}) {
+  const ref = useRef<HTMLElement>(null)
+  const isInView = useInView(ref, {
+    amount: threshold,
+    once,
+    margin: rootMargin,
+  })
+
+  return { ref, isInView }
+}
+```
+
+---
+
+## Patterns d'utilisation
+
+### 1. Scroll reveal simple sur une section
+
+```tsx
+import { motion } from 'framer-motion'
+import { FADE_UP, STAGGER_CONTAINER } from '@/constants/animations'
+
+export function ServicesSection() {
+  return (
+    <section id="services" className="py-24">
+      {/* Conteneur stagger — les enfants apparaissent en cascade */}
+      <motion.div
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+      >
+        <motion.div variants={FADE_UP}>
+          <SectionHeader tag="Nos Services" title="Des solutions complètes" />
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          {SERVICES.map((service) => (
+            <motion.div key={service.id} variants={FADE_UP}>
+              <ServiceCard {...service} />
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </section>
+  )
+}
+```
+
+### 2. Cards avec hover lift
+
+```tsx
+import { motion } from 'framer-motion'
+import { SCALE_UP, HOVER_LIFT } from '@/constants/animations'
+
+export function ServiceCard({ title, description, icon }: ServiceCardProps) {
+  return (
+    <motion.div
+      variants={SCALE_UP}             // apparition au scroll
+      initial="rest"
+      whileHover="hover"              // état hover
+      animate="rest"
+      className="rounded-2xl bg-white p-6 cursor-pointer"
+    >
+      <motion.div variants={HOVER_LIFT}>
+        {/* Contenu de la card */}
+        <div className="text-primary mb-4">
+          <DynamicIcon name={icon} size={32} />
+        </div>
+        <h3 className="font-heading font-bold text-xl text-dark">{title}</h3>
+        <p className="mt-2 text-gray-muted">{description}</p>
+      </motion.div>
+    </motion.div>
+  )
+}
+```
+
+### 3. Titre hero avec reveal mot par mot
+
+```tsx
+import { motion } from 'framer-motion'
+import { WORD_REVEAL, WORD_CHILD, FADE_UP, STAGGER_SLOW } from '@/constants/animations'
+
+const title = "On crée les applications web de vos rêves"
+const words = title.split(' ')
+
+export function HeroSection() {
+  return (
+    <motion.section
+      variants={STAGGER_SLOW}
+      initial="hidden"
+      animate="visible"
+      className="pt-32 pb-20"
+    >
+      {/* Titre mot par mot */}
+      <motion.h1
+        variants={WORD_REVEAL}
+        className="font-heading text-5xl md:text-7xl font-bold leading-tight"
+      >
+        {words.map((word, i) => (
+          <motion.span
+            key={i}
+            variants={WORD_CHILD}
+            className="inline-block mr-[0.25em]"
+            style={{ display: 'inline-block' }} // nécessaire pour rotateX
+          >
+            {word}
+          </motion.span>
+        ))}
+      </motion.h1>
+
+      {/* Sous-titre fade up après le titre */}
+      <motion.p variants={FADE_UP} className="mt-6 text-xl text-gray-muted max-w-2xl">
+        Votre partenaire digital pour créer des applications web...
+      </motion.p>
+
+      {/* CTAs avec délai supplémentaire */}
+      <motion.div variants={FADE_UP} className="mt-10 flex gap-4">
+        <Button size="lg">Démarrer votre projet</Button>
+        <Button size="lg" variant="secondary">Voir nos réalisations</Button>
+      </motion.div>
+    </motion.section>
+  )
+}
+```
+
+### 4. Compteurs animés (stats : 50+, 98%, 5+, 24/7)
+
+```tsx
+import { motion, useInView, useMotionValue, useSpring, animate } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+
+interface CounterProps {
+  from?: number
+  to: number
+  suffix?: string
+  duration?: number
+}
+
+export function AnimatedCounter({ from = 0, to, suffix = '', duration = 2 }: CounterProps) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const isInView = useInView(ref, { once: true })
+
+  useEffect(() => {
+    if (!isInView || !ref.current) return
+
+    const controls = animate(from, to, {
+      duration,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate(value) {
+        if (ref.current) {
+          ref.current.textContent = Math.round(value) + suffix
+        }
+      },
+    })
+
+    return () => controls.stop()
+  }, [isInView, from, to, suffix, duration])
+
+  return <span ref={ref}>{from + suffix}</span>
+}
+
+// Usage dans StatsSection
+<AnimatedCounter to={50} suffix="+" />    // "50+"
+<AnimatedCounter to={98} suffix="%" />    // "98%"
+```
+
+### 5. Processus avec ligne de connexion animée
+
+```tsx
+import { motion } from 'framer-motion'
+import { STAGGER_CONTAINER, SCALE_IN } from '@/constants/animations'
+
+export function ProcessSection() {
+  return (
+    <section className="py-24">
+      <motion.div
+        className="flex flex-col md:flex-row items-start gap-8 relative"
+        variants={STAGGER_CONTAINER}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        {/* Ligne de progression animée */}
+        <motion.div
+          className="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-gray-100"
+          initial={{ scaleX: 0, originX: 0 }}
+          whileInView={{ scaleX: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+        />
+
+        {PROCESS_STEPS.map((step, index) => (
+          <motion.div
+            key={step.id}
+            variants={SCALE_IN}
+            className="flex-1 flex flex-col items-center text-center relative z-10"
+          >
+            {/* Numéro d'étape */}
+            <motion.div
+              className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg mb-4"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: 'spring', stiffness: 400 }}
+            >
+              {String(index + 1).padStart(2, '0')}
+            </motion.div>
+            <h3 className="font-heading font-bold text-lg">{step.title}</h3>
+            <p className="mt-2 text-gray-muted text-sm">{step.description}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+    </section>
+  )
+}
+```
+
+---
+
+## Règles de performance
+
+| Règle | Détail |
+|---|---|
+| `viewport={{ once: true }}` | Obligatoire sur tous les `whileInView` — ne rejouer qu'une fois |
+| Animer uniquement `opacity`, `transform` (x, y, scale, rotate) | Jamais `width`, `height`, `top`, `left` — ils causent des reflows |
+| Pas de `motion.*` inutile | Si pas d'animation → `<div>` normal |
+| `layout` prop avec parcimonie | Coûteux — uniquement pour les animations de layout réelles |
+| `will-change: transform` | Framer Motion le gère, ne pas l'ajouter manuellement |
+
+---
+
+## Règles d'accessibilité
+
+```tsx
+// ✅ Toujours respecter prefers-reduced-motion
+import { useReducedMotion } from 'framer-motion'
+
+export function AnimatedCard({ children }: { children: React.ReactNode }) {
+  const shouldReduceMotion = useReducedMotion()
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: shouldReduceMotion ? 0.1 : 0.5 }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+```
+
+```css
+/* Fallback CSS si JS désactivé ou non chargé */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+---
+
+## Ce qu'il ne faut jamais faire
+
+```tsx
+// ❌ Variants inline — impossibles à réutiliser, illisibles
+<motion.div
+  initial={{ opacity: 0, y: 40, scale: 0.9 }}
+  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{ duration: 0.6, ease: 'easeOut' }}
+  viewport={{ once: true }}
+/>
+
+// ✅ Importer depuis constants/animations
+import { SCALE_UP, TRANSITION_EASE } from '@/constants/animations'
+<motion.div variants={SCALE_UP} initial="hidden" whileInView="visible" viewport={{ once: true }} />
+
+// ❌ Animer des propriétés non-performantes
+<motion.div animate={{ width: 300, height: 200, left: 50 }} />
+
+// ❌ Oublier viewport once
+<motion.div whileInView={{ opacity: 1 }} /> // rejoue à chaque passage !
+
+// ✅
+<motion.div whileInView={{ opacity: 1 }} viewport={{ once: true }} />
+```

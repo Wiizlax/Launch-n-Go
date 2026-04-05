@@ -1,0 +1,159 @@
+---
+description: Conventions TypeScript strictes pour éviter les any, bien typer les props et les données
+globs: **/*.{ts,tsx}
+alwaysApply: true
+---
+
+# TypeScript — Conventions & Bonnes Pratiques
+
+## Config de base
+
+`tsconfig.json` avec strict mode complet :
+
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true
+  }
+}
+```
+
+---
+
+## Règles fondamentales
+
+- **Jamais de `any`** — ni `@ts-ignore`, ni `as any`, ni cast forcé
+- **Toujours typer les props** des composants React
+- **Typer les retours de fonctions** explicitement quand l'inférence n'est pas évidente
+- Utiliser `satisfies` pour valider un objet contre un type sans perdre l'inférence
+
+---
+
+## `type` vs `interface`
+
+```ts
+// ✅ `type` pour les unions, intersections, alias
+type ButtonVariant = 'primary' | 'secondary' | 'ghost'
+type CardProps = BaseProps & { title: string }
+
+// ✅ `interface` pour les objets extensibles (composants, entités)
+interface Service {
+  id: string
+  title: string
+  description: string
+  icon: string
+}
+
+// ✅ `satisfies` pour valider sans perdre l'inférence
+const config = {
+  primary: '#FF6B35',
+  surface: '#F8F7F4',
+} satisfies Record<string, string>
+```
+
+---
+
+## Pas d'enum — utiliser `as const`
+
+```ts
+// ❌ Éviter
+enum Status { ACTIVE, INACTIVE }
+
+// ✅ Préférer
+export const STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const
+
+export type Status = typeof STATUS[keyof typeof STATUS]
+```
+
+---
+
+## Typage des props de composants
+
+```tsx
+// ✅ Interface dédiée, props optionnelles avec valeurs par défaut
+interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  isLoading?: boolean
+  children: React.ReactNode
+  onClick?: () => void
+  className?: string
+}
+
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  isLoading = false,
+  children,
+  className,
+  ...props
+}: ButtonProps) {
+  // ...
+}
+```
+
+---
+
+## Types partagés dans `src/types/`
+
+```ts
+// src/types/index.ts — barrel export de tous les types
+
+export type { Service } from './service'
+export type { Testimonial } from './testimonial'
+export type { Project } from './project'
+export type { NavItem } from './navigation'
+```
+
+```ts
+// src/types/service.ts
+export interface Service {
+  id: string
+  icon: string           // nom de l'icône lucide-react
+  title: string
+  description: string
+  href?: string
+}
+```
+
+---
+
+## Utilitaires de types courants
+
+```ts
+// Rendre certaines propriétés requises
+type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>
+
+// Props avec className optionnel
+type WithClassName<T = object> = T & { className?: string }
+
+// Props d'un composant React
+type PropsOf<T extends React.ElementType> = React.ComponentPropsWithoutRef<T>
+```
+
+---
+
+## Ce qu'il ne faut jamais faire
+
+```ts
+// ❌ any
+const data: any = fetchData()
+
+// ❌ cast forcé sans raison
+const el = document.getElementById('app') as HTMLDivElement
+
+// ❌ ignorer les erreurs
+// @ts-ignore
+
+// ❌ enum natif TypeScript
+enum Direction { Up, Down }
+
+// ❌ props non typées
+export function Card(props) { ... }
+```

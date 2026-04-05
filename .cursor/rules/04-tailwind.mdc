@@ -1,0 +1,246 @@
+---
+description: Conventions Tailwind CSS — tokens, cn(), mobile-first, design system, pas de duplication
+globs: **/*.{ts,tsx,css}
+alwaysApply: true
+---
+
+# Tailwind CSS — Conventions & Design System
+
+## Règles fondamentales
+
+### Ne jamais
+- Écrire des styles `style={{}}` inline — sauf valeurs dynamiques **impossibles** à exprimer en Tailwind (ex: `style={{ height: dynamicHeight }}`)
+- Copier une longue chaîne de classes → créer un composant ou utiliser `cn()`
+- Utiliser des classes arbitraires `[value]` quand une valeur standard Tailwind existe
+- Référencer des couleurs brutes comme `text-orange-500` — utiliser les **tokens** du design system
+
+### Toujours
+- **Mobile-first** : classes sans préfixe en base, `md:` et `lg:` pour agrandir
+- Utiliser `cn()` pour toutes les classes conditionnelles
+- Définir couleurs, espacements et typographies custom dans `tailwind.config.ts`
+
+---
+
+## Helper `cn()` — obligatoire dans tout le projet
+
+```ts
+// src/utils/cn.ts
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+/**
+ * Merge Tailwind classes safely, resolving conflicts.
+ * Use for all conditional or dynamic className combinations.
+ */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+```tsx
+// ✅ Utilisation correcte
+<div className={cn(
+  'rounded-lg p-6 transition-all',
+  isActive && 'ring-2 ring-primary',
+  variant === 'dark' && 'bg-dark text-white',
+  className   // toujours passer className en dernier pour permettre l'override
+)} />
+
+// ❌ Jamais ça — twMerge résout les conflits, template literals non
+<div className={`rounded-lg p-6 ${isActive ? 'ring-2 ring-primary' : ''}`} />
+```
+
+---
+
+## `tailwind.config.ts` — Design system du projet
+
+```ts
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
+  theme: {
+    extend: {
+      // ── Couleurs ──────────────────────────────────────────────
+      colors: {
+        primary: {
+          DEFAULT: '#FF6B35',
+          dark: '#E55A25',
+          light: '#FF8F5E',
+        },
+        surface: {
+          DEFAULT: '#F8F7F4',
+          dark: '#EFEDE8',
+        },
+        dark: {
+          DEFAULT: '#1A1A2E',
+          light: '#2D2D44',
+        },
+        gray: {
+          muted: '#9CA3AF',
+        },
+      },
+
+      // ── Typographie ───────────────────────────────────────────
+      fontFamily: {
+        heading: ['Sora', 'sans-serif'],   // remplacer selon choix final
+        body: ['DM Sans', 'sans-serif'],   // remplacer selon choix final
+        mono: ['JetBrains Mono', 'monospace'],
+      },
+
+      // ── Espacements custom ────────────────────────────────────
+      spacing: {
+        section: '6rem',       // py-section pour les sections
+        'section-sm': '4rem',  // mobile
+      },
+
+      // ── Container ─────────────────────────────────────────────
+      container: {
+        center: true,
+        padding: {
+          DEFAULT: '1rem',
+          sm: '1.5rem',
+          lg: '2rem',
+        },
+        screens: {
+          xl: '1280px',
+        },
+      },
+
+      // ── Ombres ────────────────────────────────────────────────
+      boxShadow: {
+        card: '0 4px 24px -4px rgba(0,0,0,0.08)',
+        'card-hover': '0 12px 40px -8px rgba(0,0,0,0.16)',
+        'primary-glow': '0 8px 24px -4px rgba(255,107,53,0.35)',
+      },
+
+      // ── Border radius ─────────────────────────────────────────
+      borderRadius: {
+        xl: '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem',
+      },
+    },
+  },
+  plugins: [],
+}
+
+export default config
+```
+
+---
+
+## Tokens à utiliser — jamais les couleurs brutes
+
+```tsx
+// ✅ Tokens sémantiques
+<div className="bg-surface text-dark">
+<button className="bg-primary hover:bg-primary-dark text-white shadow-primary-glow">
+<p className="text-gray-muted">
+
+// ❌ Couleurs hardcodées
+<div className="bg-[#F8F7F4] text-[#1A1A2E]">
+<button className="bg-orange-500 hover:bg-orange-600">
+```
+
+---
+
+## Variables CSS globales dans `index.css`
+
+```css
+/* src/styles/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #FF6B35;
+    --color-surface: #F8F7F4;
+    --color-dark: #1A1A2E;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-body text-dark bg-white antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-heading;
+  }
+
+  /* Focus visible cohérent */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2;
+  }
+}
+
+@layer utilities {
+  /* Utilitaire section padding cohérent */
+  .section-padding {
+    @apply py-16 md:py-24;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent;
+  }
+}
+```
+
+---
+
+## Responsive — Mobile-first systématiquement
+
+```tsx
+// ✅ Mobile d'abord, breakpoints pour agrandir
+<div className="
+  grid grid-cols-1
+  md:grid-cols-2
+  lg:grid-cols-3
+  gap-4 md:gap-6
+  px-4 md:px-0
+">
+
+// ✅ Typographie responsive
+<h1 className="text-3xl md:text-5xl lg:text-6xl font-heading font-bold">
+
+// ❌ Desktop d'abord (à ne jamais faire)
+<div className="grid-cols-3 sm:grid-cols-1">
+```
+
+---
+
+## Variantes de composants — pattern `variants object`
+
+```tsx
+// Définir les variantes en dehors du composant (pas recalculé à chaque render)
+const cardVariants = {
+  default: 'bg-white shadow-card border border-gray-100',
+  highlighted: 'bg-primary text-white shadow-primary-glow',
+  outline: 'bg-transparent border-2 border-primary',
+} as const
+
+type CardVariant = keyof typeof cardVariants
+
+interface CardProps {
+  variant?: CardVariant
+  className?: string
+  children: React.ReactNode
+}
+
+export function Card({ variant = 'default', className, children }: CardProps) {
+  return (
+    <div className={cn(
+      'rounded-2xl p-6 transition-shadow duration-300',
+      cardVariants[variant],
+      className
+    )}>
+      {children}
+    </div>
+  )
+}
+```

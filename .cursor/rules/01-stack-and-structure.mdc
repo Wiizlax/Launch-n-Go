@@ -1,0 +1,113 @@
+---
+description: Stack technique et structure des dossiers pour un projet landing page React/TypeScript/Tailwind
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: true
+---
+
+# Stack & Structure du Projet
+
+## Stack obligatoire
+
+| Outil | Choix | Notes |
+|---|---|---|
+| Language | TypeScript strict | `"strict": true` dans tsconfig |
+| Framework | React 18+ avec **Vite** | Pas CRA |
+| Styling | **Tailwind CSS v3** | Pas de CSS inline, pas de styled-components |
+| Animations | **Framer Motion** | Voir rules animations dédiées |
+| Icons | **lucide-react** | Exclusivement |
+| Fonts | `@fontsource` ou Google Fonts | Importées dans `index.css` |
+| Formulaires | React Hook Form + Zod | |
+| Linting | ESLint + Prettier | Ne jamais bypasser |
+
+---
+
+## Structure des dossiers
+
+```
+src/
+├── assets/                  # Images WebP, SVGs, fonts statiques
+├── components/
+│   ├── ui/                  # Atomes réutilisables (Button, Badge, Card…)
+│   │   └── index.ts         # Barrel export
+│   └── sections/            # Sections de la landing (Hero, Services…)
+│       └── index.ts         # Barrel export
+├── constants/               # Données statiques typées — jamais de magic strings dans JSX
+├── hooks/                   # Custom hooks (useScrollReveal, useMediaQuery…)
+├── types/                   # Types & interfaces TypeScript partagés
+├── utils/                   # Fonctions utilitaires pures
+│   └── cn.ts                # Helper clsx + tailwind-merge
+├── styles/
+│   └── index.css            # Directives Tailwind + variables CSS custom
+├── App.tsx
+└── main.tsx
+```
+
+**Règle barrel** : chaque dossier expose un `index.ts` qui ré-exporte tout.  
+Import : `import { Button, Card } from '@/components/ui'` — jamais de chemin profond.
+
+---
+
+## Alias de chemin
+
+Configurer `@/` dans **vite.config.ts** et **tsconfig.json** :
+
+```ts
+// vite.config.ts
+import path from 'path'
+export default defineConfig({
+  resolve: {
+    alias: { '@': path.resolve(__dirname, 'src') },
+  },
+})
+```
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] }
+  }
+}
+```
+
+---
+
+## Ordre des imports dans chaque fichier
+
+```ts
+// 1. React et hooks React
+import { useState, useEffect } from 'react'
+
+// 2. Librairies externes
+import { motion } from 'framer-motion'
+import { ArrowRight } from 'lucide-react'
+
+// 3. Composants internes
+import { Button, Card } from '@/components/ui'
+
+// 4. Hooks custom, utils, types, constantes
+import { useScrollReveal } from '@/hooks'
+import { cn } from '@/utils/cn'
+import type { Service } from '@/types'
+import { SERVICES } from '@/constants'
+
+// 5. Assets
+import heroImage from '@/assets/hero.webp'
+```
+
+---
+
+## Commits conventionnels
+
+```
+feat:      nouvelle fonctionnalité
+fix:       correction de bug
+refactor:  refactoring sans changement de comportement
+style:     formatting, Tailwind classes
+chore:     dépendances, config
+```
+
+- Pas de `console.log` en production (règle ESLint `no-console`)
+- Variables d'environnement dans `.env` — jamais hardcodées
+- Une feature = une branche

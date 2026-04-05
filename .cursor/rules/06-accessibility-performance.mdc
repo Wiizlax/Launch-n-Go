@@ -1,0 +1,296 @@
+---
+description: Accessibilité (a11y) et performance pour landing page React — images, sémantique HTML, focus, lazy loading
+globs: **/*.{ts,tsx,css}
+alwaysApply: true
+---
+
+# Accessibilité & Performance
+
+## Sémantique HTML — obligatoire
+
+```tsx
+// ✅ Structure sémantique correcte d'une landing page
+<body>
+  <header>                    {/* Navigation principale */}
+    <nav aria-label="Navigation principale">
+      ...
+    </nav>
+  </header>
+
+  <main>                      {/* Contenu principal — 1 seul par page */}
+    <section id="hero" aria-label="Présentation">...</section>
+    <section id="services" aria-label="Nos services">...</section>
+    <section id="portfolio" aria-label="Nos réalisations">...</section>
+    <section id="process" aria-label="Notre processus">...</section>
+    <section id="testimonials" aria-label="Témoignages clients">...</section>
+    <section id="contact" aria-label="Contactez-nous">...</section>
+  </main>
+
+  <footer>...</footer>
+</body>
+```
+
+**Règles HTML sémantiques :**
+- 1 seul `<h1>` par page (le titre héro)
+- Hiérarchie de titres respectée : `h1 → h2 → h3` (pas de saut)
+- `<section>` toujours avec un `aria-label` ou un `<h2>` enfant
+- `<button>` pour les actions, `<a>` pour la navigation
+- Jamais de `<div>` ou `<span>` cliquables sans `role` et `tabIndex`
+
+---
+
+## Images
+
+```tsx
+// ✅ Image hero (above the fold) — pas de lazy load, priorité haute
+<img
+  src="/images/hero.webp"
+  alt="Équipe LaunchGo en train de développer une application web"
+  width={1200}
+  height={800}
+  // Pas de loading="lazy" sur le hero
+  fetchPriority="high"
+/>
+
+// ✅ Images below the fold — lazy load obligatoire
+<img
+  src="/images/project-ecommerce.webp"
+  alt="Interface de la plateforme e-commerce développée pour un client retail"
+  width={600}
+  height={400}
+  loading="lazy"
+  decoding="async"
+/>
+
+// ✅ Image décorative — alt vide
+<img src="/images/bg-pattern.svg" alt="" aria-hidden="true" />
+
+// ❌ Jamais
+<img src="photo.jpg" />                     // alt manquant
+<img src="photo.png" loading="lazy" />      // PNG — utiliser WebP
+<img src="photo.webp" />                    // loading manquant (si below fold)
+```
+
+**Format d'images :**
+- Toujours **WebP** (ou AVIF si support OK)
+- Toujours spécifier `width` et `height` pour éviter le layout shift (CLS)
+- Optimiser avant import : max 200 Ko pour les images de contenu
+
+---
+
+## Boutons et liens accessibles
+
+```tsx
+// ✅ Bouton avec label explicite
+<button aria-label="Fermer le menu de navigation">
+  <X size={20} aria-hidden="true" />
+</button>
+
+// ✅ Lien avec label descriptif
+<a href="#contact" aria-label="Aller à la section contact">
+  Nous contacter
+</a>
+
+// ✅ Bouton avec état de chargement
+<button
+  disabled={isLoading}
+  aria-disabled={isLoading}
+  aria-busy={isLoading}
+>
+  {isLoading ? 'Envoi...' : 'Envoyer le message'}
+</button>
+
+// ❌ Icône seule sans label
+<button><ArrowRight /></button>
+
+// ❌ Div cliquable
+<div onClick={handleClick}>Cliquer ici</div>
+```
+
+---
+
+## Focus visible — navigation clavier
+
+```css
+/* src/styles/index.css — focus cohérent sur tout le site */
+@layer base {
+  /* Focus visible uniquement au clavier (pas au clic souris) */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-white;
+    border-radius: 4px;
+  }
+
+  /* Skip link pour les utilisateurs clavier */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4
+           focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-white
+           focus:rounded-lg focus:font-semibold;
+  }
+}
+```
+
+```tsx
+// App.tsx — skip link en premier élément
+export function App() {
+  return (
+    <>
+      <a href="#main-content" className="skip-link">
+        Aller au contenu principal
+      </a>
+      <Header />
+      <main id="main-content">
+        {/* sections */}
+      </main>
+      <Footer />
+    </>
+  )
+}
+```
+
+---
+
+## Contraste des couleurs — minimum WCAG AA
+
+| Combinaison | Ratio minimum |
+|---|---|
+| Texte normal (< 18px) | 4.5:1 |
+| Grand texte (≥ 18px bold) | 3:1 |
+| Composants UI (boutons, inputs) | 3:1 |
+
+Vérifier avec : [https://webaim.org/resources/contrastchecker/](https://webaim.org/resources/contrastchecker/)
+
+```
+✅ #FF6B35 (primary) sur blanc → 3.1:1 (OK pour grand texte)
+✅ #1A1A2E (dark) sur blanc → 14.8:1
+✅ Blanc sur #FF6B35 → 3.1:1 (OK pour boutons en gras ≥ 18px)
+⚠️ Vérifier le texte gris sur fond clair
+```
+
+---
+
+## Performance
+
+### Lazy loading des sections
+
+```tsx
+// App.tsx — sections non critiques en lazy
+import { lazy, Suspense } from 'react'
+
+const PortfolioSection = lazy(() => import('@/components/sections/PortfolioSection'))
+const TestimonialsSection = lazy(() => import('@/components/sections/TestimonialsSection'))
+
+// Les sections above the fold restent en import normal
+import { HeroSection } from '@/components/sections/HeroSection'
+import { ServicesSection } from '@/components/sections/ServicesSection'
+
+export function App() {
+  return (
+    <main>
+      <HeroSection />
+      <ServicesSection />
+      <Suspense fallback={<SectionSkeleton />}>
+        <PortfolioSection />
+        <TestimonialsSection />
+      </Suspense>
+    </main>
+  )
+}
+```
+
+### Éviter les re-renders inutiles
+
+```tsx
+// ✅ useMemo uniquement pour des calculs coûteux réels
+const sortedProjects = useMemo(
+  () => PROJECTS.filter(p => p.category === activeFilter),
+  [activeFilter]
+)
+
+// ❌ useMemo inutile — le calcul est trivial
+const title = useMemo(() => `Bonjour ${name}`, [name])
+
+// ✅ useCallback pour les handlers passés comme props
+const handleFilterChange = useCallback((category: string) => {
+  setActiveFilter(category)
+}, [])
+
+// ❌ useCallback inutile — handler local non passé en prop
+const handleClick = useCallback(() => setOpen(true), []) // inutile
+```
+
+### Web Vitals — objectifs
+
+| Métrique | Objectif |
+|---|---|
+| LCP (Largest Contentful Paint) | < 2.5s |
+| CLS (Cumulative Layout Shift) | < 0.1 |
+| FID / INP | < 200ms |
+| FCP (First Contentful Paint) | < 1.8s |
+
+**Actions concrètes :**
+- Précharger la font principale : `<link rel="preload" href="..." as="font" crossorigin>`
+- `fetchPriority="high"` sur l'image héro
+- Toujours spécifier `width` + `height` sur les `<img>` (évite CLS)
+- Minifier et compresser les assets (Vite le fait en `build`)
+
+---
+
+## Formulaire accessible (section Contact)
+
+```tsx
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+
+const contactSchema = z.object({
+  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  email: z.string().email('Adresse email invalide'),
+  subject: z.string().min(5, 'Le sujet est trop court'),
+  message: z.string().min(20, 'Le message doit contenir au moins 20 caractères'),
+})
+
+type ContactFormData = z.infer<typeof contactSchema>
+
+export function ContactForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ContactFormData>({ resolver: zodResolver(contactSchema) })
+
+  return (
+    // ✅ onSubmit sur le form, pas sur le bouton
+    <form onSubmit={handleSubmit(onSubmit)} noValidate aria-label="Formulaire de contact">
+
+      <div className="flex flex-col gap-1">
+        <label htmlFor="name" className="text-sm font-medium text-dark">
+          Nom complet <span aria-hidden="true" className="text-primary">*</span>
+        </label>
+        <input
+          id="name"
+          type="text"
+          autoComplete="name"
+          aria-required="true"
+          aria-describedby={errors.name ? 'name-error' : undefined}
+          aria-invalid={!!errors.name}
+          className={cn(
+            'rounded-lg border px-4 py-3 text-dark transition-colors',
+            'focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none',
+            errors.name ? 'border-red-500' : 'border-gray-200'
+          )}
+          {...register('name')}
+        />
+        {errors.name && (
+          <p id="name-error" role="alert" className="text-sm text-red-500">
+            {errors.name.message}
+          </p>
+        )}
+      </div>
+
+      <Button type="submit" isLoading={isSubmitting} className="mt-6 w-full">
+        Envoyer le message
+      </Button>
+    </form>
+  )
+}
+```

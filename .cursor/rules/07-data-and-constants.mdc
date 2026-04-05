@@ -1,0 +1,296 @@
+---
+description: Architecture des données et constantes — jamais de magic strings dans les JSX, tout est typé et centralisé dans src/constants/
+globs: **/*.{ts,tsx}
+alwaysApply: true
+---
+
+# Données & Constantes — Architecture
+
+## Principe fondamental
+
+**Aucune donnée hardcodée dans les composants JSX.**  
+Textes, listes, configs → tout va dans `src/constants/` avec un typage fort.  
+Les composants ne font que **mapper** ces constantes.
+
+---
+
+## Structure de `src/constants/`
+
+```
+src/constants/
+├── index.ts          # Barrel export de tout
+├── navigation.ts     # NAV_ITEMS
+├── services.ts       # SERVICES
+├── projects.ts       # PROJECTS (portfolio)
+├── testimonials.ts   # TESTIMONIALS
+├── process.ts        # PROCESS_STEPS
+├── stats.ts          # STATS (50+, 98%…)
+├── animations.ts     # Variants Framer Motion (voir rules animations)
+└── site.ts           # Config globale (nom, email, adresse, réseaux)
+```
+
+---
+
+## `src/constants/site.ts` — Config globale
+
+```ts
+// src/constants/site.ts
+export const SITE_CONFIG = {
+  name: 'LaunchGo',
+  tagline: 'On crée les applications web de vos rêves',
+  description: 'Votre partenaire digital pour créer des applications web sur mesure qui convertissent et performent.',
+  email: 'contact@launchgo.fr',
+  phone: '33 1 23 45 67 52',
+  address: 'Paris, France',
+  socials: {
+    twitter: 'https://twitter.com/launchgo',
+    linkedin: 'https://linkedin.com/company/launchgo',
+    github: 'https://github.com/launchgo',
+    instagram: 'https://instagram.com/launchgo',
+  },
+} as const
+```
+
+---
+
+## `src/constants/navigation.ts`
+
+```ts
+// src/constants/navigation.ts
+import type { NavItem } from '@/types'
+
+export const NAV_ITEMS: NavItem[] = [
+  { label: 'Services', href: '#services' },
+  { label: 'Projets', href: '#portfolio' },
+  { label: 'Processus', href: '#process' },
+  { label: 'Témoignages', href: '#testimonials' },
+]
+```
+
+---
+
+## `src/constants/services.ts`
+
+```ts
+// src/constants/services.ts
+import type { Service } from '@/types'
+
+export const SERVICES: Service[] = [
+  {
+    id: 'web-dev',
+    icon: 'Code',               // nom exact de l'icône lucide-react
+    title: 'Développement Web',
+    description: 'Applications web modernes avec React, Next.js et les dernières technologies.',
+  },
+  {
+    id: 'mobile',
+    icon: 'Smartphone',
+    title: 'Applications Mobiles',
+    description: 'Applications cross-platform de qualité pour iOS et Android.',
+  },
+  {
+    id: 'ui-ux',
+    icon: 'Palette',
+    title: 'Design UI/UX',
+    description: 'Interfaces utilisateur élaborées et designs qui convertissent.',
+  },
+  {
+    id: 'ecommerce',
+    icon: 'ShoppingCart',
+    title: 'E-commerce',
+    description: 'Solutions de vente en ligne performantes et sécurisées.',
+  },
+  {
+    id: 'mvp',
+    icon: 'Rocket',
+    title: 'MVP & Prototypes',
+    description: 'Lancez rapidement votre produit avec un MVP fonctionnel.',
+  },
+  {
+    id: 'analytics',
+    icon: 'BarChart3',
+    title: 'Dashboards & Analytics',
+    description: 'Tableaux de bord personnalisés pour visualiser vos données.',
+  },
+]
+```
+
+---
+
+## `src/constants/projects.ts`
+
+```ts
+// src/constants/projects.ts
+import type { Project } from '@/types'
+
+export const PROJECTS: Project[] = [
+  {
+    id: 'ecommerce-platform',
+    label: 'E-COMMERCE',
+    labelColor: 'orange',
+    title: 'Plateforme E-commerce',
+    description: 'Site de vente en ligne avec paiement sécurisé et gestion des stocks.',
+    image: '/images/projects/ecommerce.webp',
+    tags: ['React', 'Node.js', 'Stripe'],
+    href: '#',
+  },
+  {
+    id: 'saas-app',
+    label: 'SAAS',
+    labelColor: 'blue',
+    title: 'Application SaaS',
+    description: 'Dashboard de gestion de projets avec analytics en temps réel.',
+    image: '/images/projects/saas.webp',
+    tags: ['Next.js', 'TypeScript', 'Prisma'],
+    href: '#',
+  },
+  // ...
+]
+```
+
+---
+
+## `src/constants/testimonials.ts`
+
+```ts
+// src/constants/testimonials.ts
+import type { Testimonial } from '@/types'
+
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'marie-dubois',
+    name: 'Marie Dubois',
+    role: 'CEO, Femixam',
+    avatar: '/images/avatars/marie.webp',
+    rating: 5,
+    content: 'On a transformé notre application web en quelques semaines. Professionnels et à l\'écoute.',
+  },
+  // ...
+]
+```
+
+---
+
+## `src/constants/stats.ts`
+
+```ts
+// src/constants/stats.ts
+import type { Stat } from '@/types'
+
+export const STATS: Stat[] = [
+  { id: 'projects', value: 50, suffix: '+', label: 'Projets livrés' },
+  { id: 'satisfaction', value: 98, suffix: '%', label: 'Satisfaction client' },
+  { id: 'experience', value: 5, suffix: '+', label: 'Années d\'expérience' },
+  { id: 'support', value: 24, suffix: '/7', label: 'Support disponible' },
+]
+```
+
+---
+
+## `src/types/index.ts` — Types correspondants
+
+```ts
+// src/types/service.ts
+export interface Service {
+  id: string
+  icon: string
+  title: string
+  description: string
+  href?: string
+}
+
+// src/types/project.ts
+export interface Project {
+  id: string
+  label: string
+  labelColor: 'orange' | 'blue' | 'green' | 'purple'
+  title: string
+  description: string
+  image: string
+  tags: string[]
+  href?: string
+}
+
+// src/types/testimonial.ts
+export interface Testimonial {
+  id: string
+  name: string
+  role: string
+  avatar: string
+  rating: 1 | 2 | 3 | 4 | 5
+  content: string
+}
+
+// src/types/stat.ts
+export interface Stat {
+  id: string
+  value: number
+  suffix: string
+  label: string
+}
+
+// src/types/navigation.ts
+export interface NavItem {
+  label: string
+  href: string
+  external?: boolean
+}
+
+// src/types/index.ts — barrel
+export type { Service } from './service'
+export type { Project } from './project'
+export type { Testimonial } from './testimonial'
+export type { Stat } from './stat'
+export type { NavItem } from './navigation'
+```
+
+---
+
+## `src/constants/index.ts` — Barrel export
+
+```ts
+// src/constants/index.ts
+export { SITE_CONFIG } from './site'
+export { NAV_ITEMS } from './navigation'
+export { SERVICES } from './services'
+export { PROJECTS } from './projects'
+export { TESTIMONIALS } from './testimonials'
+export { PROCESS_STEPS } from './process'
+export { STATS } from './stats'
+// Les animations sont importées directement depuis animations.ts (trop nombreuses pour un barrel)
+```
+
+---
+
+## Icônes dynamiques depuis lucide-react
+
+Les constantes stockent le **nom** de l'icône (string). Un composant utilitaire résout l'icône :
+
+```tsx
+// src/components/ui/DynamicIcon.tsx
+import { icons } from 'lucide-react'
+
+interface DynamicIconProps {
+  name: string
+  size?: number
+  className?: string
+}
+
+export function DynamicIcon({ name, size = 24, className }: DynamicIconProps) {
+  const IconComponent = icons[name as keyof typeof icons]
+
+  if (!IconComponent) {
+    console.warn(`Icon "${name}" not found in lucide-react`)
+    return null
+  }
+
+  return <IconComponent size={size} className={className} aria-hidden="true" />
+}
+```
+
+```tsx
+// Usage dans ServiceCard
+import { DynamicIcon } from '@/components/ui'
+
+<DynamicIcon name={service.icon} size={32} className="text-primary" />
+```
