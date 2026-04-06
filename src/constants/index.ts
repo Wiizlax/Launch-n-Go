@@ -1,3 +1,9 @@
+export {
+  HERO_TABLET_IMAGE_ALT,
+  HERO_TABLET_IMAGE_HEIGHT,
+  HERO_TABLET_IMAGE_SRC,
+  HERO_TABLET_IMAGE_WIDTH,
+} from './hero'
 export { SITE_CONFIG } from './site'
 export { NAV_ITEMS } from './navigation'
 export { SERVICES } from './services'
@@ -13,4 +19,11 @@ export {
 } from './footer'
 export { SECTION_COPY } from './sections'
 export { CONTACT_FORM, CONTACT_TOAST_SUCCESS_MS } from './contact'
-export { FADE_UP, STAGGER_CONTAINER, TRANSITION_EASE } from './animations'
+export {
+  FADE_UP,
+  HERO_TABLET_DEVICE_VARIANTS,
+  HERO_TABLET_REDUCED_VARIANTS,
+  HERO_TABLET_SCREEN_REVEAL_VARIANTS,
+  STAGGER_CONTAINER,
+  TRANSITION_EASE,
+} from './animations'

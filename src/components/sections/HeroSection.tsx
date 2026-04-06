@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Sparkles, Rocket } from 'lucide-react'
 
 import { Container, buttonLinkClass } from '@/components/ui'
+import { HeroTabletMockup } from '@/components/sections/HeroTabletMockup'
 import { cn } from '@/utils/cn'
 import { SITE_CONFIG, STATS } from '@/constants'
 
@@ -87,6 +88,7 @@ export function HeroSection() {
             {SITE_CONFIG.ctaSecondary}
           </a>
         </motion.div>
+        <HeroTabletMockup />
         <div className="mt-12 w-full max-w-3xl border-t border-[rgba(43,88,118,0.075)] pt-6 md:max-w-4xl lg:max-w-3xl">
           <div className="grid grid-cols-2 gap-y-10 md:grid-cols-4">
             {STATS.map((stat) => (
