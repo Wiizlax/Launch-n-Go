@@ -4,6 +4,7 @@ export {
   HERO_TABLET_IMAGE_SRC,
   HERO_TABLET_IMAGE_WIDTH,
 } from './hero'
+export { SERVICE_LOTTIE_MODAL_ID } from './serviceModal'
 export { SITE_CONFIG } from './site'
 export { NAV_ITEMS } from './navigation'
 export { SERVICES } from './services'

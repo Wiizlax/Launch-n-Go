@@ -1,12 +1,19 @@
+import { useCallback, useState } from 'react'
 import { motion } from 'framer-motion'
 
-import { Container, SectionHeader, ServiceCard } from '@/components/ui'
+import { Container, SectionHeader, ServiceCard, ServiceLottieModal } from '@/components/ui'
 import { useFadeUpVariants, useStaggerSafe } from '@/hooks'
 import { SECTION_COPY, SERVICES } from '@/constants'
+import type { Service } from '@/types'
 
 export function ServicesSection() {
+  const [selectedService, setSelectedService] = useState<Service | null>(null)
   const fadeUp = useFadeUpVariants()
   const stagger = useStaggerSafe()
+
+  const handleDismissModal = useCallback(() => {
+    setSelectedService(null)
+  }, [])
 
   return (
     <section
@@ -32,12 +39,18 @@ export function ServicesSection() {
           <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-6 md:mt-10 md:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((service) => (
               <motion.div key={service.id} variants={fadeUp} className="h-full min-h-0">
-                <ServiceCard service={service} className="h-full" />
+                <ServiceCard
+                  service={service}
+                  className="h-full"
+                  isModalOpen={selectedService?.id === service.id}
+                  onOpen={() => setSelectedService(service)}
+                />
               </motion.div>
             ))}
           </div>
         </motion.div>
       </Container>
+      <ServiceLottieModal service={selectedService} onDismiss={handleDismissModal} />
     </section>
   )
 }
