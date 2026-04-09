@@ -86,3 +86,77 @@ export const HERO_TABLET_REDUCED_VARIANTS: Variants = {
   },
 }
 
+// ── Pile portfolio (cartes 3D) ───────────────────────────────────────────────
+
+export const DECK_STACK_TRANSITION: Transition = {
+  duration: 0.62,
+  ease: [0.22, 1, 0.36, 1],
+}
+
+export const DECK_STACK_TRANSITION_REDUCED: Transition = {
+  duration: 0.2,
+  ease: [0.25, 0.46, 0.45, 0.94],
+}
+
+/**
+ * Transition — feuillet : lever, rotation, passage derrière (zIndex sur le wrapper),
+ * puis atterrissage. 6 keyframes — times alignés avec DECK_FLIP_WRAPPER_Z.
+ */
+export const DECK_FLIP_TRANSITION: Transition = {
+  duration: 1.22,
+  times: [0, 0.12, 0.34, 0.52, 0.76, 1],
+  ease: [0.22, 1, 0.36, 1],
+}
+
+/** z-index du wrapper carte : au-dessus du tas pendant le lift, puis sous mi/fond (20/10) */
+export const DECK_FLIP_WRAPPER_Z = [30, 56, 56, 6, 4, 0] as const
+
+export const DECK_FLIP_KEYFRAMES = {
+  rotateY: [0, -12, -48, -102, -168, -178],
+  x: [0, 6, 14, 10, -6, 0],
+  y: [0, -14, -22, -32, -50, -58],
+  scale: [1, 1.03, 1.01, 0.96, 0.87, 0.82],
+  opacity: [1, 1, 1, 1, 0.4, 0],
+  z: [0, 64, 92, 36, -28, -12],
+} as const
+
+export const DECK_STACK_FRONT = {
+  rotateY: 0,
+  x: 0,
+  y: 0,
+  scale: 1,
+  opacity: 1,
+  z: 0,
+  zIndex: 30,
+} as const
+
+export const DECK_STACK_MID = {
+  rotateY: 0,
+  x: 0,
+  y: -28,
+  scale: 0.94,
+  opacity: 0.99,
+  z: 0,
+  zIndex: 20,
+} as const
+
+export const DECK_STACK_BACK = {
+  rotateY: 0,
+  x: 0,
+  y: -52,
+  scale: 0.88,
+  opacity: 0.88,
+  z: 0,
+  zIndex: 10,
+} as const
+
+export const DECK_STACK_HIDDEN = {
+  rotateY: 0,
+  x: 0,
+  y: -58,
+  scale: 0.84,
+  opacity: 0,
+  z: 0,
+  zIndex: 0,
+} as const
+

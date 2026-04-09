@@ -19,6 +19,7 @@ export {
   FOOTER_LEGAL,
 } from './footer'
 export { SECTION_COPY } from './sections'
+export { PORTFOLIO_STACK_COPY } from './portfolio'
 export { CONTACT_FORM, CONTACT_TOAST_SUCCESS_MS } from './contact'
 export {
   FADE_UP,

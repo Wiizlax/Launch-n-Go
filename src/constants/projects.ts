@@ -3,6 +3,7 @@ import type { Project } from '@/types'
 export const PROJECTS: Project[] = [
   {
     id: 'ecommerce-platform',
+    year: '2024',
     categoryLabel: 'E-commerce',
     title: 'Plateforme E-commerce',
     description: 'Site de vente en ligne avec paiement sécurisé et gestion des stocks.',
@@ -12,6 +13,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'saas-app',
+    year: '2024',
     categoryLabel: 'SaaS',
     title: 'Application SaaS',
     description: 'Dashboard de gestion de projets avec analytics en temps réel.',
@@ -21,6 +23,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'landing-premium',
+    year: '2023',
     categoryLabel: 'Web Design',
     title: 'Site Vitrine Premium',
     description: 'Landing page moderne pour une startup tech',
@@ -30,6 +33,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'fitness-app',
+    year: '2025',
     categoryLabel: 'Mobile',
     title: 'App Mobile Fitness',
     description: "Application de suivi d'entraînement et nutrition",
@@ -39,6 +43,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'marketplace-b2b',
+    year: '2023',
     categoryLabel: 'Marketplace',
     title: 'Marketplace B2B',
     description: 'Plateforme de mise en relation entre professionnels',
@@ -48,6 +53,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: 'crm-custom',
+    year: '2024',
     categoryLabel: 'Business',
     title: 'CRM Custom',
     description: 'Outil de gestion client sur mesure avec automatisations',

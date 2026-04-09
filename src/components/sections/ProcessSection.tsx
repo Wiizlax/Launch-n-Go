@@ -91,7 +91,7 @@ export function ProcessSection() {
     <section
       id="process"
       aria-label="Notre processus"
-      className="bg-cream py-12 md:py-16"
+      className="bg-cream pt-14 pb-12 md:py-16"
     >
       <Container>
         <motion.div

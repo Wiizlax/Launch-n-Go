@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
 
-import { Container, ProjectCard, SectionHeader } from '@/components/ui'
+import { Container, SectionHeader, StackedProjectDeck } from '@/components/ui'
 import { useFadeUpVariants, useStaggerSafe } from '@/hooks'
-import { PROJECTS, SECTION_COPY } from '@/constants'
+import { SECTION_COPY } from '@/constants'
 
 export function PortfolioSection() {
   const fadeUp = useFadeUpVariants()
@@ -12,7 +12,7 @@ export function PortfolioSection() {
     <section
       id="portfolio"
       aria-label="Nos réalisations"
-      className="bg-section-warm py-12 md:py-16"
+      className="bg-section-warm pt-12 pb-16 md:py-16"
     >
       <Container>
         <motion.div
@@ -29,13 +29,9 @@ export function PortfolioSection() {
               subtitle={SECTION_COPY.portfolio.subtitle}
             />
           </motion.div>
-          <div className="mt-8 grid auto-rows-fr grid-cols-1 gap-6 md:mt-10 md:grid-cols-2 lg:grid-cols-3">
-            {PROJECTS.map((project) => (
-              <motion.div key={project.id} variants={fadeUp} className="h-full min-h-0">
-                <ProjectCard project={project} className="h-full" />
-              </motion.div>
-            ))}
-          </div>
+          <motion.div variants={fadeUp} className="mt-8 mb-8 md:mb-0 md:mt-10">
+            <StackedProjectDeck />
+          </motion.div>
         </motion.div>
       </Container>
     </section>
