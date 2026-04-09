@@ -87,7 +87,7 @@ export function StackedProjectDeck() {
             const wrapperAnimate =
               reduceMotion || !isExitTarget
                 ? { zIndex: wrapperZForRole(role) }
-                : { zIndex: [...DECK_FLIP_WRAPPER_Z] }
+                : { zIndex: DECK_FLIP_WRAPPER_Z }
 
             const wrapperTransition = reduceMotion
               ? DECK_STACK_TRANSITION_REDUCED

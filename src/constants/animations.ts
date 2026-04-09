@@ -109,8 +109,9 @@ export const DECK_FLIP_TRANSITION: Transition = {
 }
 
 /** z-index du wrapper carte : au-dessus du tas pendant le lift, puis sous mi/fond (20/10) */
-export const DECK_FLIP_WRAPPER_Z = [30, 56, 56, 6, 4, 0] as const
+export const DECK_FLIP_WRAPPER_Z: number[] = [30, 56, 56, 6, 4, 0]
 
+/** Keyframes flip — tableaux mutables (Framer Motion / TS refusent `readonly` sur les keyframes) */
 export const DECK_FLIP_KEYFRAMES = {
   rotateY: [0, -12, -48, -102, -168, -178],
   x: [0, 6, 14, 10, -6, 0],
@@ -118,7 +119,7 @@ export const DECK_FLIP_KEYFRAMES = {
   scale: [1, 1.03, 1.01, 0.96, 0.87, 0.82],
   opacity: [1, 1, 1, 1, 0.4, 0],
   z: [0, 64, 92, 36, -28, -12],
-} as const
+}
 
 export const DECK_STACK_FRONT = {
   rotateY: 0,
